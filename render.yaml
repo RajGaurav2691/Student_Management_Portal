@@ -1,13 +1,12 @@
 services:
   - type: web
     name: student-management-backend
-    runtime: java
+
+    env: docker
 
     rootDir: backend
 
-    buildCommand: "./mvnw clean package -DskipTests"
-
-    startCommand: "java -jar target/*.jar"
+    dockerfilePath: ./Dockerfile
 
     envVars:
       - key: DB_URL

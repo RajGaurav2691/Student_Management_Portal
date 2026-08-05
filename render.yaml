@@ -20,4 +20,4 @@ services:
         sync: false
 
       - key: PORT
-        value: "8081"
+        value: "8080"

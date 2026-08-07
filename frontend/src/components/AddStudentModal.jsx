@@ -1,8 +1,7 @@
 import { useState } from "react";
 
-function AddStudentModal({ onClose, addStudent, students }) {
+function AddStudentModal({ onClose, addStudent }) {
   const [student, setStudent] = useState({
-    id: "",
     rollNo: "",
     name: "",
     branch: "CSE",
@@ -22,20 +21,12 @@ function AddStudentModal({ onClose, addStudent, students }) {
   const validate = () => {
     const temp = {};
 
-    if (!student.id) {
-      temp.id = "Student ID is required.";
-    } else if (
-      students.some((s) => String(s.id) === String(student.id))
-    ) {
-      temp.id = "Student ID already exists.";
-    }
-
     if (!student.rollNo.trim()) {
       temp.rollNo = "Roll Number is required.";
     }
 
     if (!student.name.trim()) {
-      temp.name = "Name is required.";
+      temp.name = "Student Name is required.";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,27 +43,27 @@ function AddStudentModal({ onClose, addStudent, students }) {
   const handleSubmit = async () => {
     if (!validate()) return;
 
-    await addStudent({
-      ...student,
-      id: Number(student.id),
-      semester: Number(student.semester),
-    });
+    try {
+      await addStudent({
+        rollNo: student.rollNo,
+        name: student.name,
+        email: student.email,
+        branch: student.branch,
+        semester: Number(student.semester),
+      });
+
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add student.");
+    }
   };
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box">
+      <div className="modal">
 
         <h2>Add Student</h2>
-
-        <input
-          type="number"
-          name="id"
-          placeholder="Student ID"
-          value={student.id}
-          onChange={handleChange}
-        />
-        <small className="error">{errors.id}</small>
 
         <input
           name="rollNo"

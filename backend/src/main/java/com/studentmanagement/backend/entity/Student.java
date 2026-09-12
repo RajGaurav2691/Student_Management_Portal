@@ -1,6 +1,8 @@
 package com.studentmanagement.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "students")
@@ -10,14 +12,20 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Student Name is required.")
     private String name;
 
+    @NotBlank(message = "Roll Number is required.")
     private String rollNo;
 
+    @NotBlank(message = "Branch is required.")
     private String branch;
 
+    @NotBlank(message = "Semester is required.")
     private String semester;
 
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Invalid Email.")
     private String email;
 
     public Student() {

@@ -48,12 +48,14 @@ function Students() {
   const [studentToDelete, setStudentToDelete] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
   const studentsPerPage = 5;
 
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [currentPage, searchTerm, selectedBranch, selectedSemester]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -61,12 +63,24 @@ function Students() {
 
   const fetchStudents = async () => {
     try {
-      const data = await getStudents();
-      setStudents(data);
+      const params = {
+        page: currentPage - 1,
+        size: studentsPerPage,
+        search: searchTerm || null,
+        branch: selectedBranch !== "All" ? selectedBranch : null,
+        semester: selectedSemester !== "All" ? selectedSemester : null,
+      };
+      
+      const data = await getStudents(params);
+      setStudents(data.content);
+      setTotalPages(data.totalPages || 1);
+      setTotalElements(data.totalElements || 0);
     } catch (error) {
       console.error(error);
     }
   };
+
+
 
 const handleDeleteStudent = (student) => {
 
@@ -119,58 +133,16 @@ const handleUpdateStudent = async (student) => {
   const handleAddStudent = async (student) => {
     try {
       await addStudent(student);
-
       await fetchStudents();
-
       setCurrentPage(1);
-
       setShowAddModal(false);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 
-const filteredStudents = students.filter((student) => {
 
-    const matchesSearch =
-        student.name
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-        student.id.toString().includes(searchTerm);
-
-    const matchesBranch =
-        selectedBranch === "All" ||
-        student.branch === selectedBranch;
-
-    const matchesSemester =
-        selectedSemester === "All" ||
-        student.semester.toString() === selectedSemester;
-
-    return (
-        matchesSearch &&
-        matchesBranch &&
-        matchesSemester
-    );
-
-});
-
-const indexOfLastStudent = currentPage * studentsPerPage;
-
-const indexOfFirstStudent =
-  indexOfLastStudent - studentsPerPage;
-
-const currentStudents = filteredStudents.slice(
-  indexOfFirstStudent,
-  indexOfLastStudent
-);
-
-const totalPages = Math.max(
-    1,
-    Math.ceil(
-        filteredStudents.length /
-        studentsPerPage
-    )
-);
 
   return (
     <>
@@ -184,7 +156,7 @@ const totalPages = Math.max(
 
             <h2>Total Students</h2>
 
-            <h1>{students.length}</h1>
+            <h1>{totalElements}</h1>
 
           </div>
 
@@ -210,7 +182,7 @@ const totalPages = Math.max(
         />
 
         <StudentTable
-          students={currentStudents}
+          students={students}
           searchTerm={searchTerm}
           selectedBranch={selectedBranch}
           selectedSemester={selectedSemester}

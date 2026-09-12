@@ -16,9 +16,18 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    // Get All Students
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+    // Get All Students with Pagination and Filters
+    public org.springframework.data.domain.Page<Student> getAllStudents(
+            String search,
+            String branch,
+            String semester,
+            org.springframework.data.domain.Pageable pageable) {
+
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
+
+        return studentRepository.findByFilters(search, branch, semester, pageable);
     }
 
     // Get Student By ID

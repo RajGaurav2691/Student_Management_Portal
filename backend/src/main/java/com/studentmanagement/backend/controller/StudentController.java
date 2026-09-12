@@ -26,15 +26,23 @@ public class StudentController {
 
     // GET ALL STUDENTS
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Student>>> getAllStudents() {
+    public ResponseEntity<ApiResponse<org.springframework.data.domain.Page<Student>>> getAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String branch,
+            @RequestParam(required = false) String semester) {
 
-        List<Student> students = studentService.getAllStudents();
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+
+        org.springframework.data.domain.Page<Student> studentsPage =
+                studentService.getAllStudents(search, branch, semester, pageable);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
                         true,
                         "Students fetched successfully",
-                        students
+                        studentsPage
                 )
         );
     }
@@ -55,20 +63,43 @@ public class StudentController {
     }
 
     // ADD STUDENT
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<Student>> addStudent(
+//            @Valid @RequestBody Student student) {
+//
+//        Student savedStudent = studentService.addStudent(student);
+//
+//        return new ResponseEntity<>(
+//                new ApiResponse<>(
+//                        true,
+//                        "Student added successfully",
+//                        savedStudent
+//                ),
+//                HttpStatus.CREATED
+//        );
+//    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<Student>> addStudent(
             @Valid @RequestBody Student student) {
 
+        System.out.println("========== ADD STUDENT ==========");
+        System.out.println("ID       : " + student.getId());
+        System.out.println("Roll No  : " + student.getRollNo());
+        System.out.println("Name     : " + student.getName());
+        System.out.println("Email    : " + student.getEmail());
+        System.out.println("Branch   : " + student.getBranch());
+        System.out.println("Semester : " + student.getSemester());
+        System.out.println("================================");
+
         Student savedStudent = studentService.addStudent(student);
 
-        return new ResponseEntity<>(
-                new ApiResponse<>(
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(
                         true,
                         "Student added successfully",
                         savedStudent
-                ),
-                HttpStatus.CREATED
-        );
+                ));
     }
 
     // UPDATE STUDENT
